@@ -1,0 +1,23 @@
+#!/bin/bash
+function usage () {
+    echo -e "Usage: scripts/add_to_sudoers [template]\n"
+    echo "    Template is required, one of:"
+    for f in ./templates/*
+    do
+        fn="${f##*/}"
+        echo '        '"${fn%.*}"
+    done
+    echo -e "\n"
+}
+if [ $# -lt 1 ]
+then
+    usage
+    exit 1
+fi
+fn=./templates/${1}.txt
+if [ \! -e "${fn}" ]
+then
+    usage
+    exit 1
+fi
+sudo cp ./templates/${1}.txt /etc/sudoers.d/vagrant-syncedfolders

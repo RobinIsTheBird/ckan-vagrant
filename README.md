@@ -9,13 +9,17 @@ In order to make the getting started part easier I created this shell script to 
 
 1. Install [Virtualbox](https://www.virtualbox.org)
 2. Install [vagrant](http://www.vagrantup.com)
-3. Clone this repository `git clone git://github.com/philippkueng/ckan-vagrant.git`
-4. Move to the directory with your terminal application `cd ckan-vagrant/`
-5. Create the instance `vagrant up`
-6. Go get some coffee (it takes up to 15 minutes)
-7. Add to following line to `/etc/hosts`:  `192.168.19.97 ckan.lo`
-8. Open [http://ckan.lo](http://ckan.lo) in your browser.
-	
+3. If your host is Linux or Mac OS X,
+   a. install `nfsd`
+   b. safely enable vagrant sudoers by running `./scripts/add_to_sudoers` from the top level directory of the project
+   c. for details, refer to [vagrant](https://www.vagrantup.com/docs/synced-folders/nfs.html)
+4. Clone this repository `git clone git://github.com/philippkueng/ckan-vagrant.git`
+5. Move to the directory with your terminal application `cd ckan-vagrant/`
+6. Create the instance `vagrant up`
+7. Go get some coffee (it takes up to 15 minutes)
+8. Add to following line to `/etc/hosts`:  `192.168.19.97 ckan.lo`
+9. Open [http://ckan.lo](http://ckan.lo) in your browser.
+
 
 ## License
 

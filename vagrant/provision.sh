@@ -1,5 +1,7 @@
 echo "this shell script is going to setup a running ckan instance"
 
+chmod a+r /home/vagrant/.Xauthority
+
 echo "switching the OS language"
 locale-gen
 export LC_ALL="en_US.UTF-8"
@@ -11,11 +13,11 @@ sudo apt-get update
 echo "installing dependencies available via apt-get"
 sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk python-pastescript apache2 libapache2-mod-wsgi vim -y
 
-cp /vagrant/vagrant/ckan.conf /etc/apache2/conf.d/ckan.conf
+sudo cp /vagrant/vagrant/ckan.conf /etc/apache2/conf.d/ckan.conf
 sudo service apache2 restart
 
 echo "installing the dependencies available via pip"
-mkdir -p /usr/local/ckan.lo/
+sudo mkdir -p /usr/local/ckan.lo/
 sudo chmod -R a+rX /usr/local/ckan.lo
 cd /usr/local/ckan.lo/
 virtualenv --no-site-packages /usr/local/ckan.lo/pyenv
@@ -28,7 +30,7 @@ source /usr/local/ckan.lo/pyenv/bin/activate
 
 echo "creating a postgres user and database"
 sudo -u postgres createuser --superuser $USER # create a default user
-psql postgres -c "create role ckanuser login password 'pass'" 
+psql postgres -c "create role ckanuser login password 'pass'"
 sudo -u postgres createdb -O ckanuser ckantest -E utf-8
 
 echo "copying configuration files"

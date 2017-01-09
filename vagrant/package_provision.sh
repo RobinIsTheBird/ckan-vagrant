@@ -1,4 +1,6 @@
-echo "this shell script is going to setup a running ckan instance based on the CKAN 2.0 packages"
+echo "this shell script is going to setup a running ckan instance based on the CKAN 2.6 trusty package"
+
+chmod a+r /home/vagrant/.Xauthority
 
 echo "switching the OS language"
 locale-gen
@@ -9,13 +11,13 @@ echo "updating the package manager"
 sudo apt-get update
 
 echo "installing dependencies available via apt-get"
-sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5
+sudo apt-get install -y nginx apache2 apache2-utils libapache2-mod-wsgi libpq5 redis-server git-core
 
 echo "downloading the CKAN package"
-wget -q http://packaging.ckan.org/python-ckan_2.0_amd64.deb
+wget -q http://packaging.ckan.org/python-ckan_2.6-trusty_amd64.deb
 
 echo "installing the CKAN package"
-sudo dpkg -i python-ckan_2.0_amd64.deb
+sudo dpkg -i python-ckan_2.6-trusty_amd64.deb
 
 echo "Preventing NGINX from being started on a reboot"
 sudo update-rc.d -f nginx disable
@@ -28,8 +30,12 @@ sudo service apache2 restart
 echo "install postgresql and jetty"
 sudo apt-get install -y postgresql solr-jetty openjdk-6-jdk
 
-echo "copying jetty configuration"
+echo "copying jetty configuration, starting service"
 cp /vagrant/vagrant/jetty /etc/default/jetty
+# Fix syntax error in default jetty init file
+sudo sed -i -e 's/([^[])\[:/$1[[:/' -e 's/:\]([^]])/:]]$1/' /etc/init.d/jetty
+# Fix obsolete file reference in jetty init file
+sudo sed -i -e 's/sbin\/rotatelogs/bin\/rotatelogs/' /etc/init.d/jetty
 sudo service jetty start
 
 echo "linking the solr schema file"
@@ -51,12 +57,13 @@ sudo ln -s /usr/lib/ckan/default/src/ckan/ckanext/multilingual/solr/schema.xml /
 sudo service jetty restart
 
 echo "create a CKAN database in postgresql"
-sudo -u postgres createuser -S -D -R ckan_default
-sudo -u postgres psql -c "ALTER USER ckan_default with password 'pass'"
-sudo -u postgres createdb -O ckan_default ckan_default -E utf-8
+sudo -u postgres createuser -S -D -R ckan_default || \
+  sudo -u postgres psql -c "ALTER USER ckan_default with password 'pass';"
+sudo -u postgres psql -l | grep -q ckan_default || \
+  sudo -u postgres createdb -O ckan_default ckan_default -E utf-8
 
 echo "initialize CKAN database"
-cp /vagrant/vagrant/package_production.ini /etc/ckan/default/production.ini
+sudo cp /vagrant/vagrant/package_production.ini /etc/ckan/default/production.ini
 sudo ckan db init
 
 echo "enabling filestore with local storage"
